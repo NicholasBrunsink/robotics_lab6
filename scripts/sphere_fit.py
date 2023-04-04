@@ -32,6 +32,7 @@ def main():
 	yc_out = -0.017
 	zc_out = 0.52
 	p_out = -0.22
+	r_out = 0.056
 	gain = 0.05
 		
 	# main rospy loop
@@ -59,22 +60,23 @@ def main():
 		yc_out = gain*P[1][0] + (1-gain)*yc_out
 		# filter z with initial z = 0.5 and gain = 0.05
 		zc_out = gain*P[2][0] + (1-gain)*zc_out
-		# filter 
+		# filter last item in solution matrix, used for calculating radius
 		p_out = gain*P[3][0] + (1-gain)*p_out
+		
+		if xc_out**2 + yc_out**2 + zc_out**2 + p_out < 0:
+			r_in = 0
+		# set radius to calculated value is radius is not imaginary
+		else:
+			r_in = math.sqrt(xc_out**2 + yc_out**2 + zc_out**2 + p_out)
+			
+		r_out = gain*r_in + (1-gain)*r_out
 		
 		# Set xc, yc, and zc in SphereParams msg
 		params.xc = xc_out
 		params.yc = yc_out
 		params.zc = zc_out
-		# set radius = 0 if radius is imaginary
-		# happens often if p_out is a negative number roughly around -z_out
-		# results in math domain error is not caught
-		if xc_out**2 + yc_out**2 + zc_out**2 + p_out < 0:
-			params.radius = 0
-		# set radius to calculated value is radius is not imaginary
-		else:
-			params.radius = math.sqrt(xc_out**2 + yc_out**2 + zc_out**2 + p_out)
-		
+		params.radius = r_out
+	
 		print(params)
 
 		# Publishing SphereParams

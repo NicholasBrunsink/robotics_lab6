@@ -68,7 +68,7 @@ def main():
 		# set radius to calculated value is radius is not imaginary
 		else:
 			r_in = math.sqrt(xc_out**2 + yc_out**2 + zc_out**2 + p_out)
-			
+		# filtering radius with initial r = 0.05 and gain = 0.05
 		r_out = gain*r_in + (1-gain)*r_out
 		
 		# Set xc, yc, and zc in SphereParams msg
